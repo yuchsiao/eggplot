@@ -41,8 +41,12 @@ public:
     void title(const std::string &label);
     void legend(std::initializer_list<std::string> legendVec);
     void linespec(unsigned lineIndex, LineSpecInput lineSpec);
+    void linespec(unsigned lineIndex, LineProperty property, std::string value);
+    void linespec(unsigned lineIndex, LineProperty property, double value);
+    void grid(bool flag);
     void plot(std::initializer_list<DataVector> il);
-    void show();
+    void print(const std::string &filenameExport);
+    void exec();
 
 private:
     std::string filenamePrefix;
@@ -56,7 +60,9 @@ private:
     std::list<std::string>          lineSpecCanvas;
     std::list<std::string>          lineSpecOther;
     unsigned nCurve;
+    bool isGridded;
     std::string filenameExport;
+
     bool flagScreen;
     bool flagHtml;
     bool flagPng;
@@ -70,34 +76,8 @@ private:
     bool existsCairo;
     bool existsSvg;
 
-//    //* line type mapping
-//    std::map<std::string, int> lineTypeMappingAqua;
-//    std::map<std::string, int> lineTypeMappingOther;
-
-//    //* point type mapping
-//    std::map<std::string, int> pointTypeMappingAqua;
-//    std::map<std::string, int> pointTypeMappingCanvas;
-//    std::map<std::string, int> pointTypeMappingOther;
-
-//    //* color mapping
-//    std::map<char, std::string> colorMapping;
-
-
-//    void generateBatchFile();
-//    void generateBatchFileScreen();
-//    void setupLineSpec( const unsigned lineIndex,
-//                        const LineSpecInput &lineSpecMatlab,
-//                        const std::map<std::string, int> &lineType,
-//                        const std::map<std::string, int> &pointType,
-//                        std::string &lineSpecGnuplot,
-//                        bool &flagPointOnly);
-
-
     bool existsTerminal(std::string);
     void prepareLineSpec();
-
-    //* gp setup
-//    void gpDefaultLineStyle(std::ofstream &fout);
 
     //* plot curve .gp files
     void gpScreen();

@@ -33,13 +33,16 @@ void LineSpec::set(const LineProperty property, const string &value)
 {
     switch (property) {
     case LineStyle:
+        if (value.empty()){
+            throw invalid_argument("LineStyle cannot be empty");
+        }
         this->lineType = value;
         break;
     case LineWidth:
         try{
            this->lineWidth = stod(value);
         }
-        catch (const invalid_argument &e) {
+        catch (const invalid_argument &) {
             throw invalid_argument("LineWidth must be numeric");
         }
         this->lineWidth = (this->lineWidth<0) ? 0 : this->lineWidth;
@@ -51,12 +54,15 @@ void LineSpec::set(const LineProperty property, const string &value)
         try{
             this->pointSize = stod(value);
         }
-        catch (const invalid_argument &e) {
+        catch (const invalid_argument &) {
             throw invalid_argument("MarkerSize must be numeric");
         }
         this->pointSize = (this->pointSize<0) ? 0 : this->pointSize;
         break;
     case Color:
+        if (value.empty()){
+            throw invalid_argument("Color spec cannot be empty");
+        }
         this->color = value;
         break;
     default:
@@ -102,12 +108,10 @@ void LineSpec::toStringBasic(const std::map<string, int> &lineTypeMapping,
     try {
         stringstream ss;
         ss << setprecision(3) << lineTypeMapping.at(this->lineType);
-
-//        style += " lt " + to_string(lineTypeMapping.at(this->lineType));
         style += " lt " + ss.str();
     }
-    catch (const out_of_range &e) {
-        throw invalid_argument("LineType must be \"-\", \"--\", \":\", \"-.\", or \"none\"");
+    catch (const out_of_range &) {
+        throw invalid_argument("LineStyle must be \"-\", \"--\", \":\", \"-.\", or \"none\"");
     }
 
     //* linewidth
@@ -119,7 +123,7 @@ void LineSpec::toStringBasic(const std::map<string, int> &lineTypeMapping,
     try {
         style += " pt " + to_string( (pointType.empty()) ? lineIndex : pointTypeMapping.at(pointType) );
     }
-    catch (const out_of_range &e) {
+    catch (const out_of_range &) {
         throw invalid_argument("Marker must be one of \"o+*.xsd^v><ph\" or \"none\"");
     }
 
@@ -135,7 +139,7 @@ void LineSpec::toStringBasic(const std::map<string, int> &lineTypeMapping,
         try {
             style += " lc rgb '" + this->colorShortCutMapping.at(this->color[0]) + "'";
         }
-        catch (const out_of_range &e) {
+        catch (const out_of_range &) {
             throw out_of_range("Color shortcut must be one of \"ymcrgbwk\"");
         }
     }
@@ -144,21 +148,12 @@ void LineSpec::toStringBasic(const std::map<string, int> &lineTypeMapping,
         //* remove any white space
         color.erase(remove_if(color.begin(), color.end(), ::isspace), color.end());
 
-        if (color[0]!='[' || color[0]=='#') {
-            //* color string is a color name or hex color code
-            style += " lc rgb '" + color + "'";
-        }
-        else {
-            //* color string is specified as bracked values
+        if (color[0]=='[' || color[0]=='(') {
 
-            //* remove brackets
-            if (color.size()>2){
-                color = color.substr(1, color.size());
-            }
-            else {
-                throw invalid_argument("Color format must be color names, shortcuts, "
-                                       "hex hash codes '#rrggbb', or bracketed triples '[r,g,b]'");
-            }
+            bool isDecimal = (color[0]=='(') ? true : false;
+
+            //* Matlab color code or decimal code
+            color = color.substr(1, color.size());
 
             //* count number of commas
             int nComma = 0;
@@ -167,62 +162,69 @@ void LineSpec::toStringBasic(const std::map<string, int> &lineTypeMapping,
                     nComma++;
                 }
             }
-
             if (nComma!=2) {
-                throw invalid_argument("Brackted color triples must contain exact two commas, '[r,g,b]'");
+                throw invalid_argument("Brackted color triples must contain exact two commas, \"[r,g,b]\" or \"(r,g,b)\"");
             }
 
             //* Get rgb respective values
+            const int nRGB = 3;
+            vector<int>    rgbValue(nRGB);
+            vector<double> frgbValue(nRGB);
             stringstream   ss(color);
             string         str;
-            vector<double> rgbValue(3);
-
-            int index=0;
-            while (getline(ss, str, ',')) {
-                //* Receive r, g, b code respectively
-                rgbValue[index++] = stod(str);  // may throw invalid_argument
-            }
-
-            //* Check range and convert to [0,255] values
-            for (int i=0; i<3; ++i) {
-                if (rgbValue[i]>255 || rgbValue[i]<0 || (rgbValue[i]>1 && floor(rgbValue[i])!=rgbValue[i])) {
-                    throw invalid_argument("Color triples must be all pure decimals between 0 and 1.0 "
-                                           "or all integers between 0 and 255");
+            if (isDecimal) {
+                //* decimal color code
+                int index=0;
+                while (getline(ss, str, ',')) {
+                    try {
+                        rgbValue[index] = stod(str);  // may throw invalid_argument
+                    }
+                    catch (const invalid_argument &) {
+                        throw invalid_argument("Parenthesized color triples must be in integers within 0-255: " + str);
+                    }
+                    //* check range
+                    if (rgbValue[index]>255 || rgbValue[index]<0) {
+                        throw invalid_argument("Parenthesized color triples must be in integers within 0-255: " + str);
+                    }
+                    index++;
                 }
             }
-
-            //* Check if all values are of the same format
-            bool flagXterm = true;  // default format as xterm [0,255]
-            if ( rgbValue[0]<1 && rgbValue[1]<1 && rgbValue[2]<1 ) {
-                flagXterm = false;
-            }
-            else if ( floor(rgbValue[0])==rgbValue[0] &&
-                      floor(rgbValue[1])==rgbValue[1] &&
-                      floor(rgbValue[2])==rgbValue[2]    ) {
-                flagXterm = true;
-            }
             else {
-                throw invalid_argument("Color triples must be all pure decimals between 0 and 1.0 "
-                                       "or all integers between 0 and 255");
+                //* Matlab color code
+                int index=0;
+                const double epsilon=0.001;  // small value to ensure 1->255
+                while (getline(ss, str, ',')) {
+                    try {
+                        frgbValue[index] = stod(str);  // may throw invalid_argument
+                    }
+                    catch (const invalid_argument &) {
+                        throw invalid_argument("Bracketed color triples must be in decimals within 0.0-1.0: " + str);
+                    }
+                    //* check range
+                    if (rgbValue[index]>1 || rgbValue[index]<0) {
+                        throw invalid_argument("Bracketed color triples must be in decimals within 0.0-1.0: " + str);
+                    }
+                    //* convert to [0,255] values
+                    rgbValue[index] = floor(frgbValue[index]*256-epsilon);
+                    index++;
+                    cout << rgbValue[index-1] << endl;
+                }
             }
-
-            //* Convert Matlab format to xterm format
-            vector<int> xtermValue(3);
-            if (flagXterm==false) {
-                xtermValue[0] = floor(rgbValue[0]*256);
-                xtermValue[1] = floor(rgbValue[1]*256);
-                xtermValue[2] = floor(rgbValue[2]*256);
-            }
-
             //* Convert xterm format to hex code
             stringstream ssHexcode;
-            ssHexcode << std::hex << "#" << xtermValue[0] << xtermValue[1] << xtermValue[2];
+            ssHexcode << std::hex << "#"
+                         << setw(2) << setfill('0') << rgbValue[0]
+                         << setw(2) << setfill('0') << rgbValue[1]
+                         << setw(2) << setfill('0') << rgbValue[2];
             string hexcode = ssHexcode.str();
 
             style += " lc rgb '" + hexcode + "'";
         }
+        else {
+            //* color string is a color name or hex color code
+            style += " lc rgb '" + color + "'";
+        }
     }
-
 }
 
 
@@ -238,20 +240,39 @@ bool LineSpec::isPointOnly() const
     return (this->lineType.compare("none")==0)? true : false;
 }
 
+unsigned LineSpec::getGridLineType(TerminalType tt)
+{
+    switch (tt) {
+    case TERM_AQUA:
+        return LineSpec::lineTypeMappingAqua.at(":");
+        break;
+    case TERM_WXT:
+    case TERM_SVG:
+    case TERM_CANVAS:
+    case TERM_CAIRO:
+        return LineSpec::lineTypeMappingOther.at(":");
+        break;
+    default:  // TERM_OTHER
+        return LineSpec::lineTypeMappingOther.at(":");
+    }
+}
+
 
 //* Static member init
 const vector<string> LineSpec::defaultColor {
-    "#ff0000",  // red
-    "green",
-    "blue",
-    "magenta",
-    "darkturquoise",
-    "brown",
-    "goldenrod",
-    "darkolivegreen",
-    "dimgray",
-    "purple"
+    "#f00032",  // red
+    "#227500",  // green
+    "#1a3bea",  // blue
+    "#e700f0",  // magenta
+    "#00beb1",  // cyan
+    "#8b4513",  // brown
+    "#f0c000",  // yellow
+    "#808000",  // olive
+    "#505050",  // gray
+    "#6b00d2"   // purple
 };
+
+std::string LineSpec::gridColor = "#cccccc";
 
 const map<string, int> LineSpec::lineTypeMappingAqua {
     {"-",    1},

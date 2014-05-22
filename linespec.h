@@ -10,6 +10,8 @@
 
 namespace eggp{
 
+enum TerminalType {TERM_AQUA, TERM_WXT, TERM_CAIRO, TERM_SVG, TERM_CANVAS, TERM_OTHER};
+
 class LineSpec {
 public:
     LineSpec(unsigned index=0);
@@ -22,6 +24,8 @@ public:
     std::string toStringHtml() const;
 
     bool isPointOnly() const;
+    static unsigned getGridLineType(TerminalType tt);
+    static std::string gridColor;
 
     //* static function
     static void resetLineCount();
@@ -37,8 +41,6 @@ private:
     void toStringBasic(const std::map<std::string, int> &lineTypeMapping,
                        const std::map<std::string, int> &pointTypeMapping,
                        std::string                      &style) const;
-
-
 
     //* default color
     static const std::vector<std::string> defaultColor;
