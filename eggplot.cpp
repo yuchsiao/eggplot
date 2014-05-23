@@ -423,7 +423,7 @@ void Eggplot::gpCurve(ofstream &fout, const string &filename)
     fout << "unset label" << endl;
     fout << "set xtic auto" << endl;
     fout << "set ytic auto" << endl;
-    fout << "set title " << this->labelTitle << endl;
+    fout << "set title \"" << this->labelTitle << "\"" << endl;
     fout << "set xlabel \"" << this->labelX << "\"" << endl;
     fout << "set ylabel \"" << this->labelY << "\"" << endl;
     fout << "plot ";
