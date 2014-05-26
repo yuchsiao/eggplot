@@ -18,7 +18,7 @@ Quick examples
 
 ### 1. Simple curve
 
-![simple-curve](img/eggp-test.svg)
+![simple-curve](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-test.png)
 
 Include the header file `eggplot.h` and assume __x__ and __t__ are `vector<double>` of the same length:
 
