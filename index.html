@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Eggplot by yuchsiao</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Eggplot</h1>
+          <h2>A C++ library that allows you to plot data just as in MATLAB</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/yuchsiao/eggplot/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/yuchsiao/eggplot/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/yuchsiao/eggplot" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>
+<a name="eggplot" class="anchor" href="#eggplot"><span class="octicon octicon-link"></span></a>Eggplot</h1>
+
+<p>A C++ library that allows you to plot just as in MATLAB </p>
+
+<h2>
+<a name="platforms" class="anchor" href="#platforms"><span class="octicon octicon-link"></span></a>Platforms</h2>
+
+<ul>
+<li>Windows, Linux, OS X</li>
+<li>Tested on g++, clang++ </li>
+<li>C++11 (API simplified a lot by <code>std::initializer_list</code>)</li>
+<li>gnuplot 4.6 and above in <code>$PATH</code>
+</li>
+</ul><h2>
+<a name="quick-examples" class="anchor" href="#quick-examples"><span class="octicon octicon-link"></span></a>Quick examples</h2>
+
+<h3>
+<a name="1-simple-curve" class="anchor" href="#1-simple-curve"><span class="octicon octicon-link"></span></a>1. Simple curve</h3>
+
+<p>Include the header file <code>eggplot.h</code> and assume <strong>x</strong> and <strong>t</strong> are <code>vector&lt;double&gt;</code> of the same length:</p>
+
+<pre><code>eggp::Eggplot curvePlot; 
+
+curvePlot.plot({t,x});
+curvePlot.exec();
+</code></pre>
+
+<p>The code above will plot <strong>x</strong> against <strong>t</strong> with default labels for both axes.
+The function call <code>.exec()</code> must be the last command and object initialization <code>eggp::Eggplot objectName</code> must be the first. 
+The orders of all the other setup and plot commands can be arbitrary.</p>
+
+<h3>
+<a name="2-multiple-curves-with-legends" class="anchor" href="#2-multiple-curves-with-legends"><span class="octicon octicon-link"></span></a>2. Multiple curves with legends</h3>
+
+<p>Include the header file <code>eggplot.h</code> and assume <strong>x1</strong>, <strong>x2</strong>, and <strong>t</strong> are <code>vector&lt;double&gt;</code> of the same length:</p>
+
+<pre><code>eggp::Eggplot curvePlot; 
+
+curvePlot.xlabel("time\\n(sec)");       
+curvePlot.ylabel("x_i(t) (volt)");  // supports subs, supers, and breaklines
+curvePlot.plot({ t,x1, t,x2 });     // plot two curves by cascading data pairs
+curvePlot.legend({"Curve 1", 
+                  "Curve 2"});
+curvePlot.grid(true);               // turn on grids
+
+curvePlot.exec();
+</code></pre>
+
+<p>Eggplot can plot more than one curve simultaneously on the same plot by cascading data pairs just as in MATLAB. 
+Legends can be set up in a similar manner.</p>
+
+<p>Texts can be formatted with subscripts (<code>"_"</code>), superscript (<code>"^"</code>), and breaklines (<code>"\\n"</code>).
+Greek letters and other symbols are also possible but with different syntaxes from Latex. 
+<a href="http://mathewpeet.org/lists/symbols/">See here</a> for a list of available symbols.</p>
+
+<h3>
+<a name="3-curve-customization" class="anchor" href="#3-curve-customization"><span class="octicon octicon-link"></span></a>3. Curve customization</h3>
+
+<p>The same assumptions as the previous example:</p>
+
+<pre><code>eggp::Eggplot curvePlot; 
+
+curvePlot.plot({ t,x1, t,x2 });
+
+using namespace eggp;
+
+curvePlot.linespec(1, {{MarkerSize, "2.5"}, {Marker, "*"}});  // for Curve 1
+curvePlot.linespce(2, Color, "red");                          // for Curve 2
+
+curvePlot.exec();
+</code></pre>
+
+<p>Member function <code>.linespec()</code> customizes the line with the specified index. 
+Two propertypes are implemented: the first one utilizes <code>std::initializer_list</code> and the 2nd one sets up a single property.</p>
+
+<p>Customizable properties  include <code>LineStyle</code>, <code>LineWidth</code>, <code>Marker</code>, <code>MarkerSize</code>, and <code>Color</code>, each of which is defined within the namespace <code>eggp</code>.
+A list of options can be referred in the API section.</p>
+
+<h3>
+<a name="4-file-export" class="anchor" href="#4-file-export"><span class="octicon octicon-link"></span></a>4. File export</h3>
+
+<p>Eggplot can export plots to various image types, including <code>.png</code>, <code>.eps</code>, <code>.pdf</code>, <code>.html</code>, and <code>.svg</code>.</p>
+
+<pre><code>eggp::Eggplot curvePlot(SCREEN|PNG|EPS|PDF|HTML|SVG);
+
+curvePlot.print("eggp-export");    // set export file name
+
+curvePlot.plot({ t,x1, t,x2 });
+curvePlot.exec();
+</code></pre>
+
+<p>The output files will then be <code>eggp-export.png</code>, <code>eggp-export.eps</code>, and so on. 
+Note that both EPS and PDF modes also support LaTeX-formatted texts.</p>
+
+<h2>
+<a name="api" class="anchor" href="#api"><span class="octicon octicon-link"></span></a>API</h2>
+
+<h3>
+<a name="class-eggpeggplot" class="anchor" href="#class-eggpeggplot"><span class="octicon octicon-link"></span></a>class eggp::Eggplot</h3>
+
+<p><strong>Constructor</strong></p>
+
+<p><strong><code>Eggplot(unsigned mode=eggp::SCREEN)</code></strong></p>
+
+<p>Init object and set up where to plot. 
+The default is <code>eggp::SCREEN</code> to plot on screen. 
+Other output modes include <code>eggp::PNG</code>, <code>eggp::EPS</code>, <code>eggp::PDF</code>, <code>eggp::HTML</code>, and <code>eggp::SVG</code> that plot in <code>.png</code>, <code>.eps</code>, <code>.pdf</code>, <code>.html</code>, and <code>.svg</code> files, respectively.</p>
+
+<p><strong>Member functions</strong></p>
+
+<p><em>Text Related</em></p>
+
+<p><strong><code>void xlabel(const std::string &amp;label)</code></strong> sets up x axis label</p>
+
+<p><strong><code>void ylabel(const std::string &amp;label)</code></strong> sets up y axis label</p>
+
+<p><strong><code>void title(const std::string &amp;label)</code></strong> sets up figure title</p>
+
+<p><strong><code>void legend(std::initializer_list&lt;std::string&gt; legendVec)</code></strong> sets up figure legeneds. If the length of <code>legendVec</code> is shorter than the number of curves, default legends will be used for those whose legends are not specified.</p>
+
+<p><em>Line Property Related</em></p>
+
+<p><strong><code>void linespec(unsigned lineIndex, LineSpecInput lineSpec)</code></strong> customizes curves with the index <code>lineIndex</code>, starting from 1. <code>LineSpecInput</code> is a <code>std::map</code> that takes different <code>LineProperty</code> (<code>eggp::LineStyle</code>, <code>eggp::LineWidth</code>, <code>eggp::Marker</code>, <code>eggp::MarkerSize</code>, <code>eggp::Color</code>) as the key and a string as the value. In practice, written the curve setups in an initializer list is useful as in Example 3. Color can be specified in five ways: color name, color name shortcut, hex code, decimal code, and rgb values between 0 and 1. For example, for red, "r", "red", "#ff0000", "(255,0,0)", and "[1.0, 0, 0]" are equivalent.</p>
+
+<p><strong><code>void linespec(unsigned lineIndex, LineProperty property, std::string value)</code></strong> customizes a single curve property. All options are the same as the previous one.</p>
+
+<p><strong><code>void linespec(unsigned lineIndex, LineProperty property, double value)</code></strong> customizes a single curve property with a <code>double</code> value. Same as the previous one except for the <code>double</code> data type. Only valid for <code>eggp::LineWidth</code> and <code>eggp::MarkerSize</code>.</p>
+
+<p><strong><code>void grid(bool flag)</code></strong> turns on or off grids of the plot</p>
+
+<p><em>Output Related</em></p>
+
+<p><strong><code>void plot(std::initializer_list&lt;DataVector&gt; il)</code></strong> saves data in file <code>eggp.dat</code>. The argument must be paired (even-numbered vectors in <code>il</code>) such that each pair (the (2N-1)-th and (2N)-th vectors , N=1,2,...) has the same length. This command does not plot but only store data in hard drives. The actual plots and exports happen at function <code>.exec()</code>.</p>
+
+<p><strong><code>void print(const std::string &amp;filenameExport)</code></strong> sets up export file name, or the default file name <code>eggp-export</code> will be used, otherwise. Again, this command does not really print to files but only set up the file name. The actual print and export processes happen at function <code>.exec()</code>.</p>
+
+<p><strong><code>void exec()</code></strong> executes everything. All previous functions set up and store necessary information for plotting and export. This function automatically generates file <code>eggp.gp</code> as input for <em>gnuplot</em> and call <code>gnuplot eggp.gp</code> as a system call in Windows cmd or bash in Linux or OS X). The function must be called as the last command in order to generate plots.</p>
+
+<h2>
+<a name="future-features" class="anchor" href="#future-features"><span class="octicon octicon-link"></span></a>Future features</h2>
+
+<ul>
+<li>xtic and ytic setup</li>
+<li>axis range customization</li>
+<li>Other types of plots are considered also in the future.</li>
+</ul>
+        </section>
+
+        <footer>
+          Eggplot is maintained by <a href="https://github.com/yuchsiao">yuchsiao</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
