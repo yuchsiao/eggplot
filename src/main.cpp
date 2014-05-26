@@ -99,7 +99,7 @@ void example3(vector<double> &t, vector<double> &x1, vector<double> &x2 ) {
 
     // single property setup in multiple statements
     curvePlot.linespec(2, Color, "b");
-    curvePlot.linespec(2, LineWidth, 3);
+    curvePlot.linespec(2, LineWidth, 2);
     curvePlot.linespec(2, Marker, "none");
 
     curvePlot.exec();
