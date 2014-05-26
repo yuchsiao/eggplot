@@ -21,17 +21,12 @@ Quick examples
 
 ![simple-curve](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-test.png)
 
-![simple-curve](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-test.svg)
-
-![simple-curve](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-test.eps)
-
-![simple-curve](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-test.html)
 
 
 
 Include the header file `eggplot.h` and assume __x__ and __t__ are `vector<double>` of the same length:
 
-```c++11
+```c++
 eggp::Eggplot curvePlot; 
 
 curvePlot.plot({t,x});
