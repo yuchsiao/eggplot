@@ -20,7 +20,7 @@ Quick examples
 
 Include the header file `eggplot.h` and assume __x__ and __t__ are `vector<double>` of the same length:
 
-```
+```c++11
 eggp::Eggplot curvePlot; 
 
 curvePlot.plot({t,x});
@@ -66,8 +66,8 @@ curvePlot.plot({ t,x1, t,x2 });
 
 using namespace eggp;
 
-curvePlot.linespec(1, {{MarkerSize, "2.5"}, {Marker, "*"}});  // for Curve 1
-curvePlot.linespce(2, Color, "red");                          // for Curve 2
+curvePlot.linespec(1, {{MarkerSize, "2.5"}, {Marker, "*"}});  // Curve 1
+curvePlot.linespce(2, Color, "red");                          // Curve 2
 
 curvePlot.exec();
 ```
