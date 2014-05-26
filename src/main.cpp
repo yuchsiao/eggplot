@@ -3,8 +3,10 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "eggplot.h"
 #include "chebyshev.h"
+
+
+#include "eggplot.h"
 
 using namespace std;
 using namespace eggp;
@@ -13,17 +15,104 @@ using namespace eggp;
     #define M_PI		3.14159265358979323846
 #endif
 
+double normal_pdf (double x, double mean, double sigma);
+
+// Four examples in README.md
+void example1(vector<double> &t, vector<double> &x);
+void example2(vector<double> &t, vector<double> &x1, vector<double> &x2 );
+void example3(vector<double> &t, vector<double> &x1, vector<double> &x2 );
+void example4(vector<double> &t, vector<double> &x1, vector<double> &x2 );
+
+// Two extra examples
 void exampleChebyshev();
 void exampleMultiLine();
 
 int main()
 {
+    // Prepare sample data
+    unsigned nPoint = 51;
+    vector<double> x;
+    x = linspace(0, 8, nPoint);
+    vector<double> pdf11(nPoint);
+    vector<double> pdf22(nPoint);
+    double mu1 = 1;
+    double mu2 = 2;
+    double sigma1 = 1;
+    double sigma2 = 2;
+
+    for (unsigned i=0; i<nPoint; ++i) {
+        pdf11[i] = normal_pdf(x[i], mu1, sigma1);
+        pdf22[i] = normal_pdf(x[i], mu2, sigma2);
+    }
+
+
     // Example 1
-    exampleChebyshev();
+    example1(x, pdf11);
 
     // Example 2
+    example2(x, pdf11, pdf22);
+
+    // Example 3
+    example3(x, pdf11, pdf22);
+
+    // Example 4
+    example4(x, pdf11, pdf22);
+
+
+    // Example Chebyshev polynomials
+    exampleChebyshev();
+
+    // Example many lines
     exampleMultiLine();
     return 0;
+}
+
+void example1(vector<double> &t, vector<double> &x) {
+    eggp::Eggplot curvePlot;
+
+    curvePlot.plot({t,x});
+    curvePlot.exec();
+}
+
+void example2(vector<double> &t, vector<double> &x1, vector<double> &x2 ) {
+    eggp::Eggplot curvePlot;
+
+    curvePlot.xlabel("x");
+    curvePlot.ylabel("pdf_{{/Symbol m},{/Symbol s}} (x)");  // enhanced texts
+    curvePlot.plot({ t,x1, t,x2 });  // plot two curves by cascading data pairs
+    curvePlot.legend({"({/Symbol m}, {/Symbol s}) = (1, 1)",
+                      "({/Symbol m}, {/Symbol s}) = (2, 2)"});
+    curvePlot.grid(true);            // turn on grids
+
+    curvePlot.exec();
+}
+
+void example3(vector<double> &t, vector<double> &x1, vector<double> &x2 ) {
+    eggp::Eggplot curvePlot;
+
+    curvePlot.plot({ t,x1, t,x2 });
+
+    using namespace eggp;
+
+    // multiple property setup in one statement
+    curvePlot.linespec(1, {{MarkerSize, "0.5"}, {Marker, "*"}});
+
+    // single property setup in multiple statements
+    curvePlot.linespec(2, Color, "b");
+    curvePlot.linespec(2, LineWidth, 3);
+    curvePlot.linespec(2, Marker, "none");
+
+    curvePlot.exec();
+}
+
+void example4(vector<double> &t, vector<double> &x1, vector<double> &x2 ) {
+    eggp::Eggplot curvePlot(SCREEN|PNG|EPS|PDF|HTML|SVG);
+
+    // set export file name, default: "eggp-export"
+    curvePlot.print("eggp-export-ex4");
+
+    curvePlot.plot({ t,x1, t,x2 });
+    curvePlot.exec();
 }
 
 void exampleChebyshev() {
@@ -164,3 +253,8 @@ void exampleMultiLine() {
 }
 
 
+double normal_pdf (double x, double mean, double sigma) {
+    x -= mean;
+    x /= sigma;
+    return 1.0/sqrt(2*M_PI)/sigma * exp(-x*x/2);
+}

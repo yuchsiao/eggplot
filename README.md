@@ -17,16 +17,11 @@ Quick examples
 --------------
 
 ### 1. Simple curve
-
-
-![simple-curve](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-test.png)
-
-
-
+![ex1](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-export-ex1.png)
 
 Include the header file `eggplot.h` and assume __x__ and __t__ are `vector<double>` of the same length:
 
-```c++
+```
 eggp::Eggplot curvePlot; 
 
 curvePlot.plot({t,x});
@@ -38,18 +33,21 @@ The function call `.exec()` must be the last command and object initialization `
 The orders of all the other setup and plot commands can be arbitrary.
 
 ### 2. Multiple curves with legends
+![ex2](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-export-ex2.png)
 
 Include the header file `eggplot.h` and assume __x1__, __x2__, and __t__ are `vector<double>` of the same length:
 
 ```
 eggp::Eggplot curvePlot; 
 
-curvePlot.xlabel("time\\n(sec)");       
-curvePlot.ylabel("x_i(t) (volt)");  // supports subs, supers, and breaklines
-curvePlot.plot({ t,x1, t,x2 });     // plot two curves by cascading data pairs
-curvePlot.legend({"Curve 1", 
-                  "Curve 2"});
-curvePlot.grid(true);               // turn on grids
+curvePlot.xlabel("x");
+curvePlot.ylabel("pdf_{{/Symbol m},{/Symbol s}} (x)");  // enhanced texts
+
+curvePlot.plot({ t,x1, t,x2 });  // plot two curves by cascading data pairs
+
+curvePlot.legend({"{/Symbol l}=1",
+                  "{/Symbol l}=4"});
+curvePlot.grid(true);            // turn on grids
 
 curvePlot.exec();
 ```
@@ -58,22 +56,28 @@ Eggplot can plot more than one curve simultaneously on the same plot by cascadin
 Legends can be set up in a similar manner.
 
 Texts can be formatted with subscripts (`"_"`), superscript (`"^"`), and breaklines (`"\\n"`).
-Greek letters and other symbols are also possible but with different syntaxes from Latex. 
+Greek letters and other symbols are represented in different syntaxes from Latex. 
 [See here](http://mathewpeet.org/lists/symbols/) for a list of available symbols.
 
 ### 3. Curve customization
+![ex3](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-export-ex3.png)
 
-The same assumptions as the previous example:
+The assumptions are the same as the previous example:
 
 ```
-eggp::Eggplot curvePlot; 
+eggp::Eggplot curvePlot;
 
 curvePlot.plot({ t,x1, t,x2 });
 
 using namespace eggp;
 
-curvePlot.linespec(1, {{MarkerSize, "2.5"}, {Marker, "*"}});  // Curve 1
-curvePlot.linespce(2, Color, "red");                          // Curve 2
+// multiple property setup in one statement
+curvePlot.linespec(1, {{MarkerSize, "0.5"}, {Marker, "*"}});
+
+// single property setup in multiple statements
+curvePlot.linespec(2, Color, "b");
+curvePlot.linespec(2, LineWidth, 2);
+curvePlot.linespec(2, Marker, "none");
 
 curvePlot.exec();
 ```
@@ -92,7 +96,8 @@ Eggplot can export plots to various image types, including `.png`, `.eps`, `.pdf
 ```
 eggp::Eggplot curvePlot(SCREEN|PNG|EPS|PDF|HTML|SVG);
 
-curvePlot.print("eggp-export");    // set export file name
+// set export file name, default: "eggp-export"
+curvePlot.print("eggp-test");
 
 curvePlot.plot({ t,x1, t,x2 });
 curvePlot.exec();
@@ -117,7 +122,7 @@ Other output modes include `eggp::PNG`, `eggp::EPS`, `eggp::PDF`, `eggp::HTML`, 
 
 **Member functions**
 
-*Text Related*
+#####_Text Related_
 
 **```void xlabel(const std::string &label)```** sets up x axis label
 
@@ -127,17 +132,28 @@ Other output modes include `eggp::PNG`, `eggp::EPS`, `eggp::PDF`, `eggp::HTML`, 
 
 **```void legend(std::initializer_list<std::string> legendVec)```** sets up figure legeneds. If the length of `legendVec` is shorter than the number of curves, default legends will be used for those whose legends are not specified.
 
-*Line Property Related*
+#####_Line Property Related_
 
-**```void linespec(unsigned lineIndex, LineSpecInput lineSpec)```** customizes curves with the index `lineIndex`, starting from 1. `LineSpecInput` is a `std::map` that takes different `LineProperty` (`eggp::LineStyle`, `eggp::LineWidth`, `eggp::Marker`, `eggp::MarkerSize`, `eggp::Color`) as the key and a string as the value. In practice, written the curve setups in an initializer list is useful as in Example 3. Color can be specified in five ways: color name, color name shortcut, hex code, decimal code, and rgb values between 0 and 1. For example, for red, "r", "red", "#ff0000", "(255,0,0)", and "[1.0, 0, 0]" are equivalent.
+**```void linespec(unsigned lineIndex, LineSpecInput lineSpec)```** 
 
-**```void linespec(unsigned lineIndex, LineProperty property, std::string value)```** customizes a single curve property. All options are the same as the previous one.
+customizes curves with the index `lineIndex`, starting from 1. `LineSpecInput` is a `std::map` that takes different `LineProperty` (`eggp::LineStyle`, `eggp::LineWidth`, `eggp::Marker`, `eggp::MarkerSize`, `eggp::Color`) as the key and a string as the value. In practice, written the curve setups in an initializer list is useful as in Example 3. Color can be specified in five ways: color name, color name shortcut, hex code, decimal code, and rgb values between 0 and 1. For example, for red, "r", "red", "#ff0000", "(255,0,0)", and "[1.0, 0, 0]" are equivalent.
 
-**```void linespec(unsigned lineIndex, LineProperty property, double value)```** customizes a single curve property with a `double` value. Same as the previous one except for the `double` data type. Only valid for `eggp::LineWidth` and `eggp::MarkerSize`.
 
-**```void grid(bool flag)```** turns on or off grids of the plot
+**```void linespec(unsigned lineIndex, LineProperty property, std::string value)```** 
 
-*Output Related*
+customizes a single curve property. All options are the same as the previous one.
+
+
+**```void linespec(unsigned lineIndex, LineProperty property, double value)```**
+
+customizes a single curve property with a `double` value. Same as the previous one except for the `double` data type. Only valid for `eggp::LineWidth` and `eggp::MarkerSize`.
+
+
+**```void grid(bool flag)```** 
+
+turns on or off grids of the plot
+
+#####_Output Related_
 
 **```void plot(std::initializer_list<DataVector> il)```** saves data in file `eggp.dat`. The argument must be paired (even-numbered vectors in `il`) such that each pair (the (2N-1)-th and (2N)-th vectors , N=1,2,...) has the same length. This command does not plot but only store data in hard drives. The actual plots and exports happen at function `.exec()`.
 
