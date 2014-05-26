@@ -18,6 +18,8 @@ Quick examples
 
 ### 1. Simple curve
 
+![simple-curve](img/eggp-test.svg)
+
 Include the header file `eggplot.h` and assume __x__ and __t__ are `vector<double>` of the same length:
 
 ```c++11
