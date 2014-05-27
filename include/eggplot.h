@@ -46,7 +46,7 @@ public:
     void grid(bool flag);
     void plot(std::initializer_list<DataVector> il);
     void print(const std::string &filenameExport);
-    void exec();
+    void exec(bool run_gnuplot=true);
 
 private:
     std::string filenamePrefix;
@@ -80,14 +80,14 @@ private:
     void prepareLineSpec();
 
     //* plot curve .gp files
-    void gpScreen();
-    void gpPng();
-    void gpEps();
-    void gpPdf();
-    void gpHtml();
-    void gpSvg();
+    void gpScreen(bool run_gnuplot);
+    void gpPng(bool run_gnuplot);
+    void gpEps(bool run_gnuplot);
+    void gpPdf(bool run_gnuplot);
+    void gpHtml(bool run_gnuplot);
+    void gpSvg(bool run_gnuplot);
     void gpHeader(std::ofstream &fout);
-    void gpCurve(std::ofstream &fout, const std::string &filename);
+    void gpCurve(std::ofstream &fout, const std::string &filename, bool run_gnuplot);
 };
 
 }

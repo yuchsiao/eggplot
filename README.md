@@ -155,7 +155,7 @@ Other output modes include `eggp::PNG`, `eggp::EPS`, `eggp::PDF`, `eggp::HTML`, 
 
 + **```void print(const std::string &filenameExport)```** sets up export file name, or the default file name `eggp-export` will be used, otherwise. Again, this command does not really print to files but only set up the file name. The actual print and export processes happen at function `.exec()`.
  
-+ **```void exec()```** executes everything. All previous functions set up and store necessary information for plotting and export. This function automatically generates file `eggp.gp` as input for _gnuplot_ and call `gnuplot eggp.gp` as a system call in Windows cmd or bash in Linux or OS X). The function must be called as the last command in order to generate plots.
++ **```void exec(bool run_gnuplot=true)```** executes everything. All previous functions only set up and store necessary information for plotting and export to a file. This function instead generates an actual input file `eggp.gp` for _gnuplot_ and makes a system call `gnuplot eggp.gp` in a terminal if `run_gnuplot` is true. This function must be the last command before generating plots to make settings effective.
 
 
 Future features

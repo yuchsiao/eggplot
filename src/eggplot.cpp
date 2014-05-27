@@ -129,7 +129,7 @@ void Eggplot::print(const string &filenameExport)
     this->filenameExport = filenameExport;
 }
 
-void Eggplot::exec()
+void Eggplot::exec(bool run_gnuplot)
 {
     //* Check if there are data
     if (this->nCurve==0) {
@@ -155,22 +155,22 @@ void Eggplot::exec()
     prepareLineSpec();
 
     if (this->flagScreen) {
-        gpScreen();
+        gpScreen(run_gnuplot);
     }
     if (this->flagPng) {
-        gpPng();
+        gpPng(run_gnuplot);
     }
     if (this->flagEps) {
-        gpEps();
+        gpEps(run_gnuplot);
     }
     if (this->flagPdf) {
-        gpPdf();
+        gpPdf(run_gnuplot);
     }
     if (this->flagHtml) {
-        gpHtml();
+        gpHtml(run_gnuplot);
     }
     if (this->flagSvg) {
-        gpSvg();
+        gpSvg(run_gnuplot);
     }
 }
 
@@ -210,7 +210,7 @@ void foutGridSetting(ofstream &fout, TerminalType tt) {
     fout << "set grid lc rgb '" << LineSpec::gridColor << "' lw 1 lt " << LineSpec::getGridLineType(tt) << endl;
 }
 
-void Eggplot::gpScreen()
+void Eggplot::gpScreen(bool run_gnuplot)
 {
     //* Generate gnuplot batch file
     string filename = this->filenamePrefix+".gp";
@@ -246,13 +246,13 @@ void Eggplot::gpScreen()
             fout << this->lineSpec[i].toStringWxtCairoSvg() << endl;
         }
     }
-    gpCurve(fout, filename);
+    gpCurve(fout, filename, run_gnuplot);
 
     fout.close();
 
 }
 
-void Eggplot::gpPng()
+void Eggplot::gpPng(bool run_gnuplot)
 {
     //* Generate gnuplot batch file
     string filename = this->filenamePrefix+"-png.gp";
@@ -284,12 +284,12 @@ void Eggplot::gpPng()
             fout << this->lineSpec[i].toStringWxtCairoSvg() << endl;
         }
     }
-    gpCurve(fout, filename);
+    gpCurve(fout, filename, run_gnuplot);
 
     fout.close();
 }
 
-void Eggplot::gpEps()
+void Eggplot::gpEps(bool run_gnuplot)
 {
     //* Generate gnuplot batch file
     string filename = this->filenamePrefix+"-eps.gp";
@@ -324,12 +324,12 @@ void Eggplot::gpEps()
         }
     }
 
-    gpCurve(fout, filename);
+    gpCurve(fout, filename, run_gnuplot);
 
     fout.close();
 }
 
-void Eggplot::gpPdf()
+void Eggplot::gpPdf(bool run_gnuplot)
 {
     //* Generate gnuplot batch file
     string filename = this->filenamePrefix+"-pdf.gp";
@@ -350,12 +350,12 @@ void Eggplot::gpPdf()
         }
     }
 
-    gpCurve(fout, filename);
+    gpCurve(fout, filename, run_gnuplot);
 
     fout.close();
 }
 
-void Eggplot::gpHtml()
+void Eggplot::gpHtml(bool run_gnuplot)
 {
     //* Generate gnuplot batch file
     string filename = this->filenamePrefix+"-html.gp";
@@ -376,12 +376,12 @@ void Eggplot::gpHtml()
         }
     }
 
-    gpCurve(fout, filename);
+    gpCurve(fout, filename, run_gnuplot);
 
     fout.close();
 }
 
-void Eggplot::gpSvg()
+void Eggplot::gpSvg(bool run_gnuplot)
 {
     //* Generate gnuplot batch file
     string filename = this->filenamePrefix+"-svg.gp";
@@ -402,7 +402,7 @@ void Eggplot::gpSvg()
         }
     }
 
-    gpCurve(fout, filename);
+    gpCurve(fout, filename, run_gnuplot);
 
     fout.close();
 
@@ -415,7 +415,7 @@ void Eggplot::gpHeader(ofstream &fout)
     fout << "set datafile separator ','" << endl;
 }
 
-void Eggplot::gpCurve(ofstream &fout, const string &filename)
+void Eggplot::gpCurve(ofstream &fout, const string &filename, bool run_gnuplot)
 {
     fout << "set style increment userstyle" << endl;
     fout << "set autoscale" << endl;
@@ -445,7 +445,9 @@ void Eggplot::gpCurve(ofstream &fout, const string &filename)
     }
     fout << endl;
 
-    system(("gnuplot "+filename).c_str());
+    if (run_gnuplot) {
+        system(("gnuplot "+filename).c_str());
+    }
 
 }
 
