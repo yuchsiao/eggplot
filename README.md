@@ -17,7 +17,7 @@ Quick examples
 --------------
 
 ### 1. Simple curve
-![ex1](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-export-ex1.png)
+![ex1](https://raw.githubusercontent.com/yuchsiao/eggplot/master/img/eggp-export-ex1.png)
 
 Include the header file `eggplot.h` and assume __x__ and __t__ are `vector<double>` of the same length:
 
@@ -35,7 +35,7 @@ See function `example1` in `src/main.cpp`.
 
 
 ### 2. Multiple curves with legends
-![ex2](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-export-ex2.png)
+![ex2](https://raw.githubusercontent.com/yuchsiao/eggplot/master/img/eggp-export-ex2.png)
 
 Include the header file `eggplot.h` and assume __x1__, __x2__, and __t__ are `vector<double>` of the same length:
 
@@ -64,7 +64,7 @@ See function `example2` in `src/main.cpp`.
 
 
 ### 3. Curve customization
-![ex3](http://github.com/yuchsiao/eggplot/raw/master/img/eggp-export-ex3.png)
+![ex3](https://raw.githubusercontent.com/yuchsiao/eggplot/master/img/eggp-export-ex3.png)
 
 The assumptions are the same as the previous example:
 
